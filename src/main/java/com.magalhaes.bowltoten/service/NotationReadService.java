@@ -1,6 +1,7 @@
 package com.magalhaes.bowltoten.service;
 
 
+import com.magalhaes.bowltoten.errors.NotationErrorException;
 import com.magalhaes.bowltoten.model.Match;
 
 import java.util.ArrayList;
@@ -32,8 +33,8 @@ public class NotationReadService {
             }
         );
 
-        ScoringService scoringService = new ScoringService(playersAndRolls);
-        scoringService.calculateFramesPerPlayer().forEach(player -> {
+        ScoringService scoringService = new ScoringService();
+        scoringService.calculateFramesPerPlayer(playersAndRolls).forEach(player -> {
             System.out.println("Player Name: " + player.getName());
             player.getFrames().forEach(frame -> {
                 System.out.println("Frame Number: " +frame.getFrameNumber());
@@ -41,13 +42,13 @@ public class NotationReadService {
             });
         });
 
-        match.setPlayers(scoringService.calculateFramesPerPlayer());
+        match.setPlayers(scoringService.calculateFramesPerPlayer(playersAndRolls));
         return match;
     }
 
     private void checkForErrors(String rollValue, String line) {
         if (rollIsNotANumberOrFault(rollValue, line) || rollGreaterThenTen(rollValue) || negativeRoll(rollValue)) {
-            throw new RuntimeException("Invalid values for roll on file in the following line: " + line);
+            throw new NotationErrorException("Invalid values for roll on file in the following line: " + line);
         }
     }
 
@@ -59,7 +60,7 @@ public class NotationReadService {
             if(rollIsFault(rollValue)){
                 return false;
             }
-            throw new RuntimeException("File format is not according to expected, issue is on line: " + line);
+            throw new NotationErrorException("File format is not according to expected, issue is on line: " + line);
         }
     }
     private Boolean rollGreaterThenTen(String rollValue) {
@@ -71,6 +72,6 @@ public class NotationReadService {
     }
 
     private Boolean rollIsFault(String rollValue) {
-        return rollValue.equalsIgnoreCase("f");
+        return rollValue.equalsIgnoreCase(FAULT_FLAG);
     }
 }
