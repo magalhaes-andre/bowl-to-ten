@@ -21,6 +21,8 @@ Carl	10
 Carl	10
 ```
 
+## How to Run
+
 To run the program you just need to run `mvn clean install` as a common maven application, with that you'll have a build of a .jar called `bowling-cli-snapshot.jar`.
 
 With that, you're expected to run `java -jar ./bowling-cli-snapshot.jar /{pathToYourTxtFile}`.
@@ -40,5 +42,6 @@ If you don't provide a file for the jar, you're expected to see something like t
 
 `[ERROR] Please paste an absolute path to the file you'd like to read in this program`
 
+## Test Coverage
 This is the current test coverage of this application
 ![coverage.png](coverage.png)
