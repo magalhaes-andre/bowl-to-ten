@@ -7,11 +7,11 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InputFile implements Input {
+public class InputFileImpl implements Input {
     private String fileName;
     private final String TAB_REGEX = "\t";
 
-    public InputFile(String fileName) {
+    public InputFileImpl(String fileName) {
         this.fileName = fileName;
     }
 
