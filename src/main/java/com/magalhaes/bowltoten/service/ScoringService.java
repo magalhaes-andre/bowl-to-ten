@@ -4,6 +4,7 @@ package com.magalhaes.bowltoten.service;
 import com.magalhaes.bowltoten.model.Frame;
 import com.magalhaes.bowltoten.model.Player;
 
+import java.lang.management.PlatformLoggingMXBean;
 import java.util.*;
 
 public class ScoringService {
@@ -40,13 +41,10 @@ public class ScoringService {
         return calculateFrameScores(players);
     }
 
-    public List<Player> calculateFrameScores(List<Player> players) {
+    private List<Player> calculateFrameScores(List<Player> players) {
         players.forEach(player -> {
             for (int iteration = 0; iteration < player.getFrames().size(); iteration++) {
                 Frame currentFrame = player.getFrames().get(iteration);
-                Frame nextFrame = iteration + 1 == player.getFrames().size() ? null : player.getFrames().get(iteration + 1);
-                int firstBonusPinfall = 0;
-                int secondBonusPinfall = 0;
 
                 if (currentFrame.getFrameNumber() == 10) {
                     int previousFrameScore = player.getFrames().get(iteration - 1).getFrameScore();
@@ -58,49 +56,78 @@ public class ScoringService {
                     }
                 } else {
                     if (currentFrame.isStrike()) {
-                        if (nextFrame.isStrike()) {
-                            if (currentFrame.getFrameNumber() + 2 > 10) {
-                                firstBonusPinfall = nextFrame.getFirstRoll().equalsIgnoreCase("f") ? 0 : Integer.valueOf(nextFrame.getFirstRoll());
-                                secondBonusPinfall = player.getFrames().get(iteration + 1).getSecondRoll().equalsIgnoreCase("f") ? 0 : Integer.valueOf(player.getFrames().get(iteration + 1).getFirstRoll());
-                            } else {
-                                firstBonusPinfall = nextFrame.getFirstRoll().equalsIgnoreCase("f") ? 0 : Integer.valueOf(nextFrame.getFirstRoll());
-                                secondBonusPinfall = player.getFrames().get(iteration + 2).getFirstRoll().equalsIgnoreCase("f") ? 0 : Integer.valueOf(player.getFrames().get(iteration + 2).getFirstRoll());
-                            }
-                        } else {
-                            firstBonusPinfall = nextFrame.getFirstRoll().equalsIgnoreCase("f") ? 0 : Integer.valueOf(nextFrame.getFirstRoll());
-                            secondBonusPinfall = nextFrame.getSecondRoll().equalsIgnoreCase("f") ? 0 : Integer.valueOf(nextFrame.getSecondRoll());
-                        }
-                        if (iteration == 0) {
-                            currentFrame.setFrameScore(10 + firstBonusPinfall + secondBonusPinfall);
-                        } else {
-                            Frame previousFrame = player.getFrames().get(iteration - 1);
-                            currentFrame.setFrameScore(previousFrame.getFrameScore() + 10 + firstBonusPinfall + secondBonusPinfall);
-                        }
+                        calculateFrameScoreOnStrike(iteration, player);
                     }
 
                     if (currentFrame.isSpare()) {
-                        int bonusPinfall = nextFrame.getFirstRoll().equalsIgnoreCase("f") ? 0 : Integer.valueOf(nextFrame.getFirstRoll());
-                        if (iteration == 0) {
-                            currentFrame.setFrameScore(10 + bonusPinfall);
-                        } else {
-                            Frame previousFrame = player.getFrames().get(iteration - 1);
-                            currentFrame.setFrameScore(previousFrame.getFrameScore() + 10 + bonusPinfall);
-                        }
+                        calculateFrameScoreOnSpare(iteration, player);
                     }
 
                     if (!currentFrame.isStrike() && !currentFrame.isSpare()) {
-                        int firstRoll = currentFrame.getFirstRoll().equalsIgnoreCase("f") ? 0 : Integer.valueOf(currentFrame.getFirstRoll());
-                        int secondRoll = currentFrame.getSecondRoll().equalsIgnoreCase("f") ? 0 : Integer.valueOf(currentFrame.getSecondRoll());
-                        if (iteration == 0) {
-                            currentFrame.setFrameScore(firstRoll + secondRoll);
-                        } else {
-                            Frame previousFrame = player.getFrames().get(iteration - 1);
-                            currentFrame.setFrameScore(previousFrame.getFrameScore() + firstRoll + secondRoll);
-                        }
+                        calculateFrameScoreWithoutSpareOrStrike(iteration, player);
                     }
                 }
             }
         });
         return players;
+    }
+
+    private void calculateFrameScoreWithoutSpareOrStrike(int counterIteration, Player player) {
+        Frame currentFrame = player.getFrames().get(counterIteration);
+        Frame previousFrame;
+        int firstRoll = getValueFromRoll(currentFrame.getFirstRoll());
+        int secondRoll = getValueFromRoll(currentFrame.getSecondRoll());
+        if (counterIteration == 0) {
+            currentFrame.setFrameScore(firstRoll + secondRoll);
+        } else {
+            previousFrame = player.getFrames().get(counterIteration - 1);
+            currentFrame.setFrameScore(previousFrame.getFrameScore() + firstRoll + secondRoll);
+        }
+    }
+
+    private void calculateFrameScoreOnSpare(int counterIteration, Player player) {
+        Frame currentFrame = player.getFrames().get(counterIteration);
+        Frame nextFrame = player.getFrames().get(counterIteration + 1);
+        Frame previousFrame;
+        int bonusPinfall = getValueFromRoll(nextFrame.getFirstRoll());
+        if (counterIteration == 0) {
+            currentFrame.setFrameScore(10 + bonusPinfall);
+        } else {
+            previousFrame = player.getFrames().get(counterIteration - 1);
+            currentFrame.setFrameScore(previousFrame.getFrameScore() + 10 + bonusPinfall);
+        }
+    }
+
+    private void calculateFrameScoreOnStrike(int counterIteration, Player player) {
+        Frame currentFrame = player.getFrames().get(counterIteration);
+        Frame nextFrame = player.getFrames().get(counterIteration + 1);
+        Frame previousFrame;
+        int firstBonusPinfall;
+        int secondBonusPinfall;
+        if (nextFrame.isStrike()) {
+            if (currentFrame.getFrameNumber() == 8 ) {
+                firstBonusPinfall = getValueFromRoll(nextFrame.getFirstRoll());
+                secondBonusPinfall = getValueFromRoll(player.getFrames().get(counterIteration + 1).getFirstRoll());
+            } else if (currentFrame.getFrameNumber() == 9) {
+                firstBonusPinfall = getValueFromRoll(nextFrame.getFirstRoll());
+                secondBonusPinfall = getValueFromRoll(nextFrame.getSecondRoll());
+            } else {
+                firstBonusPinfall = getValueFromRoll(nextFrame.getFirstRoll());
+                secondBonusPinfall = getValueFromRoll(player.getFrames().get(counterIteration + 2).getFirstRoll());
+            }
+        } else {
+            firstBonusPinfall = getValueFromRoll(nextFrame.getFirstRoll());
+            secondBonusPinfall = getValueFromRoll(nextFrame.getSecondRoll());
+        }
+        if (counterIteration == 0) {
+            currentFrame.setFrameScore(10 + firstBonusPinfall + secondBonusPinfall);
+        } else {
+            previousFrame = player.getFrames().get(counterIteration - 1);
+            currentFrame.setFrameScore(previousFrame.getFrameScore() + 10 + firstBonusPinfall + secondBonusPinfall);
+        }
+    }
+
+    private int getValueFromRoll(String rollValue) {
+        return rollValue.equalsIgnoreCase("f") ? 0 : Integer.valueOf(rollValue);
     }
 }

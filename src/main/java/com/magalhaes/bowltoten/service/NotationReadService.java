@@ -3,6 +3,7 @@ package com.magalhaes.bowltoten.service;
 
 import com.magalhaes.bowltoten.errors.NotationErrorException;
 import com.magalhaes.bowltoten.model.Match;
+import com.magalhaes.bowltoten.model.Player;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,31 +19,32 @@ public class NotationReadService {
         Match match = new Match();
         Map<String, List<String>> playersAndRolls = new HashMap<>();
         lines.forEach(line -> {
-            String playerName = line.split(TAB_REGEX)[0];
-            String rollValue = line.split(TAB_REGEX)[1];
-            if(!rollIsFault(rollValue)){
-                checkForErrors(rollValue, line);
-            }
-                if (playersAndRolls.containsKey(playerName)) {
-                    playersAndRolls.get(playerName).add(rollValue);
-                } else {
-                    List<String> startingList = new ArrayList<>();
-                    startingList.add(rollValue);
-                    playersAndRolls.put(playerName, startingList);
+                    String playerName = line.split(TAB_REGEX)[0];
+                    String rollValue = line.split(TAB_REGEX)[1];
+                    if (!rollIsFault(rollValue)) {
+                        checkForErrors(rollValue, line);
+                    }
+                    if (playersAndRolls.containsKey(playerName)) {
+                        playersAndRolls.get(playerName).add(rollValue);
+                    } else {
+                        List<String> startingList = new ArrayList<>();
+                        startingList.add(rollValue);
+                        playersAndRolls.put(playerName, startingList);
+                    }
                 }
-            }
         );
 
         ScoringService scoringService = new ScoringService();
-        scoringService.calculateFramesPerPlayer(playersAndRolls).forEach(player -> {
-            System.out.println("Player Name: " + player.getName());
-            player.getFrames().forEach(frame -> {
-                System.out.println("Frame Number: " +frame.getFrameNumber());
-                System.out.println("FR: " + frame.getFirstRoll() + TAB_REGEX + "SR: " + frame.getSecondRoll() + TAB_REGEX + "ER: " + frame.getExtraRoll());
-            });
-        });
-
-        match.setPlayers(scoringService.calculateFramesPerPlayer(playersAndRolls));
+        //TODO: Remove
+//        scoringService.calculateFramesPerPlayer(playersAndRolls).forEach(player -> {
+//            System.out.println("Player Name: " + player.getName());
+//            player.getFrames().forEach(frame -> {
+//                System.out.println("Frame Number: " +frame.getFrameNumber());
+//                System.out.println("FR: " + frame.getFirstRoll() + TAB_REGEX + "SR: " + frame.getSecondRoll() + TAB_REGEX + "ER: " + frame.getExtraRoll());
+//            });
+//        });
+        List<Player> players = scoringService.calculateFramesPerPlayer(playersAndRolls);
+        match.setPlayers(players);
         return match;
     }
 
@@ -56,13 +58,14 @@ public class NotationReadService {
         try {
             Integer.valueOf(rollValue);
             return false;
-        } catch (NumberFormatException exception){
-            if(rollIsFault(rollValue)){
+        } catch (NumberFormatException exception) {
+            if (rollIsFault(rollValue)) {
                 return false;
             }
             throw new NotationErrorException("File format is not according to expected, issue is on line: " + line);
         }
     }
+
     private Boolean rollGreaterThenTen(String rollValue) {
         return Integer.valueOf(rollValue) > 10;
     }
