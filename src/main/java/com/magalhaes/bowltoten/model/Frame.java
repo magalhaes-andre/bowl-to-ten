@@ -19,32 +19,16 @@ public class Frame {
         return frameNumber;
     }
 
-    public void setFrameNumber(int frameNumber) {
-        this.frameNumber = frameNumber;
-    }
-
     public String getFirstRoll() {
         return firstRoll;
-    }
-
-    public void setFirstRoll(String firstRoll) {
-        this.firstRoll = firstRoll;
     }
 
     public String getSecondRoll() {
         return secondRoll;
     }
 
-    public void setSecondRoll(String secondRoll) {
-        this.secondRoll = secondRoll;
-    }
-
     public String getExtraRoll() {
         return extraRoll;
-    }
-
-    public void setExtraRoll(String extraRoll) {
-        this.extraRoll = extraRoll;
     }
 
     public int getFrameScore() {

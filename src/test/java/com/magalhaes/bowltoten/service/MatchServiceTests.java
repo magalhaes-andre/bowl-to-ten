@@ -65,11 +65,15 @@ public class MatchServiceTests {
         inputFile = new InputFileImpl(SCORES_PATH);
         final int JEFF_FINAL_SCORE = 167;
         final int JOHN_FINAL_SCORE = 151;
+        final String JOHN_NAME = "John";
+        final String JEFF_NAME = "Jeff";
         Match match = service.buildMatch(inputFile.buildNotation());
         assertEquals(2, match.getPlayers().size(), "Should be a 2 player match.");
         assertEquals(FRAMES_TOTAL, match.getPlayers().get(0).getFrames().size(), "Player should have 10 frames played exactly.");
         assertEquals(FRAMES_TOTAL, match.getPlayers().get(1).getFrames().size(), "Player should have 10 frames played exactly.");
         assertEquals(JEFF_FINAL_SCORE, match.getPlayers().get(0).getFrames().get(TENTH_FRAME_INDEX).getFrameScore(), "Jeff should have " + JEFF_FINAL_SCORE + " in his final framescore");
         assertEquals(JOHN_FINAL_SCORE, match.getPlayers().get(1).getFrames().get(TENTH_FRAME_INDEX).getFrameScore(), "John should have " + JOHN_FINAL_SCORE + " in his final framescore");
+        assertEquals(JEFF_NAME, match.getPlayers().get(0).getName(), "Jeff name should be " + JEFF_NAME);
+        assertEquals(JOHN_NAME, match.getPlayers().get(1).getName(), "John name should be " + JEFF_NAME);
     }
 }
