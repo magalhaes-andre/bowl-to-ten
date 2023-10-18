@@ -24,7 +24,9 @@ public class Chart {
     }
 
     private Object[][] calculateData() {
-        String[][] data = new String[10][15];
+        int columnsToTen = 11;
+        int numberOfRows = match.getPlayers().size() * 3;
+        String[][] data = new String[numberOfRows][columnsToTen];
         AtomicInteger currentLine = new AtomicInteger();
         match.getPlayers().forEach(player -> {
             data[currentLine.get()][0] = player.getName();

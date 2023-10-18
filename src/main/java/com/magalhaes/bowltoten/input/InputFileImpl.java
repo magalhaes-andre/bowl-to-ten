@@ -9,7 +9,6 @@ import java.util.List;
 
 public class InputFileImpl implements Input {
     private String fileName;
-    private final String TAB_REGEX = "\t";
 
     public InputFileImpl(String fileName) {
         this.fileName = fileName;

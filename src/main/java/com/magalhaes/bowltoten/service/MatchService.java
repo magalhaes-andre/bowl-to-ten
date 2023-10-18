@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class NotationReadService {
+public class MatchService {
 
     private final String TAB_REGEX = "\t";
     private final String FAULT_FLAG = "F";
@@ -35,14 +35,6 @@ public class NotationReadService {
         );
 
         ScoringService scoringService = new ScoringService();
-        //TODO: Remove
-//        scoringService.calculateFramesPerPlayer(playersAndRolls).forEach(player -> {
-//            System.out.println("Player Name: " + player.getName());
-//            player.getFrames().forEach(frame -> {
-//                System.out.println("Frame Number: " +frame.getFrameNumber());
-//                System.out.println("FR: " + frame.getFirstRoll() + TAB_REGEX + "SR: " + frame.getSecondRoll() + TAB_REGEX + "ER: " + frame.getExtraRoll());
-//            });
-//        });
         List<Player> players = scoringService.calculateFramesPerPlayer(playersAndRolls);
         match.setPlayers(players);
         return match;
