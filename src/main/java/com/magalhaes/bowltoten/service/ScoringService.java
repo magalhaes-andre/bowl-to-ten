@@ -47,13 +47,7 @@ public class ScoringService {
                 Frame currentFrame = player.getFrames().get(iteration);
 
                 if (currentFrame.getFrameNumber() == 10) {
-                    int previousFrameScore = player.getFrames().get(iteration - 1).getFrameScore();
-                    int firstRoll = currentFrame.getFirstRoll().equalsIgnoreCase("F") ? 0 : Integer.valueOf(currentFrame.getFirstRoll());
-                    int secondRoll = currentFrame.getSecondRoll().equalsIgnoreCase("F") ? 0 : Integer.valueOf(currentFrame.getSecondRoll());
-                    int extraRoll = currentFrame.getExtraRoll().equalsIgnoreCase("F") ? 0 : Integer.valueOf(currentFrame.getExtraRoll());
-                    if (currentFrame.canRollExtra()) {
-                        currentFrame.setFrameScore(previousFrameScore + firstRoll + secondRoll + extraRoll);
-                    }
+                    calculateTenthFrame(iteration, player);
                 } else {
                     if (currentFrame.isStrike()) {
                         calculateFrameScoreOnStrike(iteration, player);
@@ -124,6 +118,17 @@ public class ScoringService {
         } else {
             previousFrame = player.getFrames().get(counterIteration - 1);
             currentFrame.setFrameScore(previousFrame.getFrameScore() + 10 + firstBonusPinfall + secondBonusPinfall);
+        }
+    }
+
+    private void calculateTenthFrame(int counterIteration, Player player) {
+        Frame currentFrame = player.getFrames().get(counterIteration);
+        int previousFrameScore = player.getFrames().get(counterIteration - 1).getFrameScore();
+        int firstRoll = getValueFromRoll(currentFrame.getFirstRoll());
+        int secondRoll = getValueFromRoll(currentFrame.getSecondRoll());
+        int extraRoll = getValueFromRoll(currentFrame.getExtraRoll());
+        if (currentFrame.canRollExtra()) {
+            currentFrame.setFrameScore(previousFrameScore + firstRoll + secondRoll + extraRoll);
         }
     }
 
